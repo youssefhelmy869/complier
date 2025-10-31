@@ -30,7 +30,9 @@ enum class TokenType
     UNKNOWN,
     COMMA,
     PRAMTER,
-    NEW_LINE
+    NEW_LINE,
+    DOT_OPERATOR,
+    COLON_OPERTOR
 
 };
 struct Token
@@ -39,7 +41,7 @@ struct Token
     string text;
     int line_number;
 };
-inline constexpr unsigned long long hash(const char *str) // ascii based hash
+constexpr unsigned long long hash(const char *str) // ascii based hash
 {
     unsigned long long hash = 0;
     while (*str)
@@ -125,6 +127,14 @@ string print_token_type(Token &tok)
     {
         return "NEW_LINE";
     }
+    else if (type == TokenType::DOT_OPERATOR)
+    {
+        return "DOT_OPERATOR";
+    }
+    else if (type == TokenType::COLON_OPERTOR)
+    {
+        return "COLON_OPERTOP";
+    }
 
     else
     {
@@ -168,6 +178,12 @@ TokenType find_token_type(Token *tok)
             return TokenType::END_COMMENT;
         case ',':
             return TokenType::COMMA;
+        case '\n':
+            return TokenType::NEW_LINE;
+        case '.':
+            return TokenType::DOT_OPERATOR;
+        case ':':
+            return TokenType::COLON_OPERTOR;
         }
     }
 
@@ -202,9 +218,10 @@ TokenType find_token_type(Token *tok)
         // reset the flag before returning so it doesn't persist
         cout << "function identfeir found\n";
         function_identfier = false;
+
         return TokenType::FUNCTION_IDENTFIER;
     }
-
+    tok->Type = TokenType::IDENTFIER;
     return TokenType::IDENTFIER;
 }
 struct lexsed_file
@@ -212,11 +229,19 @@ struct lexsed_file
     int number_of_lines;
     ofstream file;
     vector<Token *> token_list;
+    int number_of_tokens;
+    vector<Token *> function_idenfiers;
+    vector<string> varablies;
+    int number_of_statments;
 };
 class lexser
 {
+public:
     int number_of_lines = 0;
     vector<Token *> Token_list;
+    int number_of_tokens = 0;
+    int number_of_statments = 0;
+    vector<Token *> function_identfiers;
 
     string code = " ";
 
@@ -239,20 +264,202 @@ class lexser
                 ++number_of_lines;
             }
         }
+        cout << "[LEXSER FIND NUMBER OF LINES FUNCTION] number of lines are " << number_of_lines << "\n";
     }
-    inline int find_paramters()
+
+    inline void find_paramters()
     {
         if (Token_list.size() == 0)
         {
             cout << "[LEXSER FIND PARAMTERS FUNCTION] the token list is empty\n";
         }
-        for (int i = 0; i <= Token_list.size(); ++i)
+        int token_list_size = Token_list.size();
+        for (int i = 0; i <= token_list_size; ++i)
         {
             Token *tok = Token_list[i];
             if (tok->Type == TokenType::IDENTFIER && (Token_list[i - 1]->Type == TokenType::BRACKET || Token_list[i - 1]->Type == TokenType::COMMA))
             {
-                tok->Type == TokenType::PRAMTER;
+                cout << "[LEXSER FIND PARAMTER FUNCTION] paramter" << tok->text << " has been found\n";
+                tok->Type = TokenType::PRAMTER;
             }
         }
+    }
+
+    void debug_lexser_output()
+    {
+        cout << "====================== debuging lexser=====================\n";
+        cout << "Token text   |   token type   |   line number \n";
+        for (auto &tok : Token_list)
+        {
+            cout << tok->text << "           " << print_token_type(*tok) << "         " << tok->line_number << "\n";
+        }
+        cout << "============================================================\n";
+        cout << "FUNCTION IDENTFIERS = " << function_identfiers.size();
+        for (auto &tok : function_identfiers)
+        {
+            // contiue here;
+        }
+    }
+    int lex()
+    { // exit code success 0
+        cout << "[LEXSER LEX FUNCTION] lex function has started code is \n"
+             << code << "\n";
+        int current_line = 0;
+        string word;
+        bool in_string = false;
+
+        for (int i = 0; i < code.length(); ++i)
+        {
+            char ch = code[i];
+            cout << "[LEXSER LEX FUNCTION MAIN LOOP] ch = " << ch << "\n";
+            if (ch == '\n')
+            {
+                ++current_line;
+                continue;
+            }
+            if (ch == '"')
+            {
+                if (!in_string && !word.empty())
+                {
+                    Token *temp = new Token;
+                    ++number_of_tokens;
+                    temp->text = word;
+                    temp->Type = find_token_type(temp);
+                    temp->line_number = current_line;
+                    Token_list.push_back(temp);
+                    word.clear();
+                    cout << "[LEXSER LEX FUNCTION] made new token number " << number_of_tokens << " token of " << temp->text << " was given type " << print_token_type(*temp) << "\n";
+                }
+                word += ch;
+                in_string = !in_string;
+                if (!in_string)
+                {
+                    Token *temp = new Token;
+                    ++number_of_tokens;
+                    temp->text = word;
+                    temp->Type = TokenType::IDENTFIER; // String literal
+                    temp->line_number = current_line;
+                    Token_list.push_back(temp);
+                    word.clear();
+                    cout << "[LEXSER LEX FUNCTION] made new token number " << number_of_tokens << " token of " << temp->text << " was given type " << print_token_type(*temp) << "\n";
+                }
+                continue;
+            }
+            if (in_string)
+            {
+                word += ch;
+                continue;
+            }
+            if (ch == '=' || ch == '+' || ch == '-' || ch == '*' || ch == '/' ||
+                ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == ';' || ch == ',' || ch == '.' || ch == ':')
+            {
+
+                if (!word.empty())
+                {
+                    Token *temp = new Token;
+                    ++number_of_tokens;
+                    temp->text = word;
+                    temp->Type = find_token_type(temp);
+                    temp->line_number = current_line;
+                    Token_list.push_back(temp);
+                    word.clear();
+                    cout << "[LEXSER LEX FUNCTION] made new token number " << number_of_tokens << " token of " << temp->text << " was given type " << print_token_type(*temp) << "\n";
+                }
+
+                // Check for double character operators (==)
+                if (ch == '=' && i + 1 < code.length() && code[i + 1] == '=')
+                {
+                    Token *temp = new Token;
+                    ++number_of_tokens;
+                    temp->text = "==";
+                    temp->Type = TokenType::COMP_OPERATOR_EQUAL;
+                    temp->line_number = current_line;
+                    Token_list.push_back(temp);
+                    i++; // Skip next character
+                    cout << "[LEXSER LEX FUNCTION] made new token number " << number_of_tokens << " token of " << temp->text << " was given type " << print_token_type(*temp) << "\n";
+                }
+                else
+                {
+                    string op(1, ch);
+                    Token *temp = new Token;
+                    ++number_of_tokens;
+                    temp->text = op;
+                    temp->Type = find_token_type(temp);
+                    temp->line_number = current_line;
+                    Token_list.push_back(temp);
+                    cout << "[LEXSER LEX FUNCTION] made new token number " << number_of_tokens << " token of " << temp->text << " was given type " << print_token_type(*temp) << "\n";
+                }
+                continue;
+            }
+
+            // Handle whitespace
+            if (isspace(ch))
+            {
+                if (!word.empty())
+                {
+                    Token *temp = new Token;
+                    ++number_of_tokens;
+                    temp->text = word;
+                    temp->Type = find_token_type(temp);
+                    temp->line_number = current_line;
+                    Token_list.push_back(temp);
+                    word.clear();
+                    cout << "[LEXSER LEX FUNCTION] made new token number " << number_of_tokens << " token of " << temp->text << " was given type " << print_token_type(*temp) << "\n";
+                }
+                continue;
+            }
+
+            word += ch;
+
+            // Handle last token if exists
+
+            if (in_string)
+            {
+                word += ch;
+                continue;
+            }
+        }
+        if (!word.empty())
+        {
+            Token *temp = new Token;
+            ++number_of_tokens;
+            temp->text = word;
+            temp->Type = find_token_type(temp);
+            temp->line_number = current_line;
+            Token_list.push_back(temp);
+            cout << "[LEXSER LEX FUNCTION] made new token number " << number_of_tokens << " token of " << temp->text << " was given type " << print_token_type(*temp) << "\n";
+        }
+        cout << "[lexser lex function] finised the main loop\n";
+        string null_string = " ";
+        overwriteFileWithString(null_string, "lexser_output.txt");
+        overwriteFileWithString(null_string, "lexser_output_type.txt");
+
+        for (auto &tok : Token_list)
+        {
+
+            cout << tok->text << "\n";
+            appendToFileWithNewLine(tok->text, "lexser_output.txt");
+            appendToFileWithNewLine(print_token_type(*tok), "lexser_output_type.txt");
+        }
+
+        // cheack if there is a entry point
+        bool entry_point_found = false;
+        for (auto &tok : Token_list)
+        {
+            if (tok->Type == TokenType::ENTERY_POINT)
+            {
+                entry_point_found = true;
+                break;
+            }
+        }
+        if (!entry_point_found)
+        {
+            cout << "[lexser] warning:\n";
+            cout << "                  this file has no entry point (main:)\n";
+        }
+        cout << "number of tokens  = " << number_of_tokens << "\n";
+        cout << "vector size = " << Token_list.size() << "\n";
+        cout << "[lexser] exiting \n";
+        return 0;
     }
 };

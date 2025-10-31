@@ -34,3 +34,15 @@ string2
 "hii"
 ;
 }
+def_f
+func
+(
+x
+,
+y
+)
+{
+return
+0
+;
+}

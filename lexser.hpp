@@ -227,26 +227,29 @@ TokenType find_token_type(Token *tok)
 struct lexsed_file
 {
     int number_of_lines;
-    ofstream file;
+
     vector<Token *> token_list;
     int number_of_tokens;
     vector<Token *> function_idenfiers;
-    vector<string> varablies;
+    vector<Token *> varablies;
     int number_of_statments;
 };
 class lexser
 {
-public:
+private:
     int number_of_lines = 0;
     vector<Token *> Token_list;
     int number_of_tokens = 0;
     int number_of_statments = 0;
     vector<Token *> function_identfiers;
+    vector<Token *> varble_identfier;
 
     string code = " ";
 
+public:
     lexser(string filename)
     {
+
         code = read_file(filename);
         if (code == " ")
         {
@@ -255,6 +258,7 @@ public:
         find_number_of_lines();
     }
 
+private:
     inline void find_number_of_lines()
     {
         for (auto &ch : code)
@@ -267,24 +271,40 @@ public:
         cout << "[LEXSER FIND NUMBER OF LINES FUNCTION] number of lines are " << number_of_lines << "\n";
     }
 
-    inline void find_paramters()
+    void find_paramters()
     {
+        cout<<"[LEXSER FIND PARAMTERS FUNCTION]find paramter function has been called\n";
         if (Token_list.size() == 0)
         {
             cout << "[LEXSER FIND PARAMTERS FUNCTION] the token list is empty\n";
         }
-        int token_list_size = Token_list.size();
-        for (int i = 0; i <= token_list_size; ++i)
+        size_t token_list_size = Token_list.size();
+        int para_found = 0;
+        
+        for (size_t i = 0; i <= token_list_size; ++i)
         {
-            Token *tok = Token_list[i];
-            if (tok->Type == TokenType::IDENTFIER && (Token_list[i - 1]->Type == TokenType::BRACKET || Token_list[i - 1]->Type == TokenType::COMMA))
-            {
-                cout << "[LEXSER FIND PARAMTER FUNCTION] paramter" << tok->text << " has been found\n";
-                tok->Type = TokenType::PRAMTER;
+            if(i >= token_list_size){
+                break;
             }
+            if(i == 0){
+                cout<<"iterntion 0 skiped\n";
+                continue;
+
+            }
+            Token *tok = Token_list[i];
+            if (tok->Type == TokenType::IDENTFIER && ((Token_list[i - 1]->Type == TokenType::BRACKET || Token_list[i - 1]->Type == TokenType::COMMA) && (Token_list[i + 1]->Type == TokenType::BRACKET || Token_list[i + 1]->Type == TokenType::COMMA)))
+            {
+                cout << "[LEXSER FIND PARAMTER FUNCTION] paramter " << tok->text << " has been found\n";
+                tok->Type = TokenType::PRAMTER;
+                ++para_found;
+            }
+        }
+        if(para_found == 0){
+            cout<<"[lexser find paramter function] no paramters found\n";
         }
     }
 
+public:
     void debug_lexser_output()
     {
         cout << "====================== debuging lexser=====================\n";
@@ -297,7 +317,36 @@ public:
         cout << "FUNCTION IDENTFIERS = " << function_identfiers.size();
         for (auto &tok : function_identfiers)
         {
-            // contiue here;
+            cout << "function identfier = " << tok->text << "\n";
+        }
+    }
+
+private:
+    void find_function_identfiers()
+    {
+        for (auto &tok : Token_list)
+        {
+            if (tok->Type == TokenType::FUNCTION_IDENTFIER)
+            {
+                function_identfiers.push_back(tok);
+            }
+        }
+    }
+    void find_varables()
+    {
+        int i = 0;
+        for (auto &tok : Token_list)
+        {
+            if (i + 3 >= Token_list.size())
+            {
+                break;
+            }
+            if (tok->Type == TokenType::IDENTFIER && Token_list[i + 1]->Type == TokenType::ASSIGMENT_OPERATOR && Token_list[i + 3]->Type == TokenType::END_OF_STATMENT)
+            {
+                varble_identfier.push_back(tok);
+            }
+
+            ++i;
         }
     }
     int lex()
@@ -460,6 +509,31 @@ public:
         cout << "number of tokens  = " << number_of_tokens << "\n";
         cout << "vector size = " << Token_list.size() << "\n";
         cout << "[lexser] exiting \n";
+
         return 0;
+    }
+
+public:
+    lexsed_file *toknize(bool debug = false)
+    {
+        lex();
+        
+        find_function_identfiers();
+        find_varables();
+        find_number_of_lines();
+        find_paramters();
+        lexsed_file *lx_file = new lexsed_file;
+        lx_file->token_list = Token_list;
+        lx_file->function_idenfiers = function_identfiers;
+        lx_file->number_of_statments = number_of_statments;
+        lx_file->number_of_tokens = number_of_tokens;
+        lx_file->varablies = varble_identfier;
+        lx_file->number_of_lines = number_of_lines;
+        if (debug)
+        {
+            debug_lexser_output();
+        }
+        cout << "[LEXSER] return lexed file\n";
+        return lx_file;
     }
 };

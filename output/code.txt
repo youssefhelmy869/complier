@@ -5,3 +5,6 @@ main:
     for(i = 5,i < 9, i = i + 1){
         string2 = "hii";
     }
+    def_f func(x,y){
+        return 0;
+    }

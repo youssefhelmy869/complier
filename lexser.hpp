@@ -479,17 +479,6 @@ private:
             cout << "[LEXSER LEX FUNCTION] made new token number " << number_of_tokens << " token of " << temp->text << " was given type " << print_token_type(*temp) << "\n";
         }
         cout << "[lexser lex function] finised the main loop\n";
-        string null_string = " ";
-        overwriteFileWithString(null_string, "lexser_output.txt");
-        overwriteFileWithString(null_string, "lexser_output_type.txt");
-
-        for (auto &tok : Token_list)
-        {
-
-            cout << tok->text << "\n";
-            appendToFileWithNewLine(tok->text, "lexser_output.txt");
-            appendToFileWithNewLine(print_token_type(*tok), "lexser_output_type.txt");
-        }
 
         // cheack if there is a entry point
         bool entry_point_found = false;
@@ -532,6 +521,18 @@ public:
         if (debug)
         {
             debug_lexser_output();
+        }
+                string null_string = " ";
+        overwriteFileWithString(null_string, "lexser_output.txt");
+        overwriteFileWithString(null_string, "lexser_output_type.txt");
+
+
+        for (auto &tok : Token_list)
+        {
+
+            cout << tok->text << "\n";
+            appendToFileWithNewLine(tok->text, "lexser_output.txt");
+            appendToFileWithNewLine(print_token_type(*tok), "lexser_output_type.txt");
         }
         cout << "[LEXSER] return lexed file\n";
         return lx_file;

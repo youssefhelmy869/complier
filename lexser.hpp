@@ -273,23 +273,24 @@ private:
 
     void find_paramters()
     {
-        cout<<"[LEXSER FIND PARAMTERS FUNCTION]find paramter function has been called\n";
+        cout << "[LEXSER FIND PARAMTERS FUNCTION]find paramter function has been called\n";
         if (Token_list.size() == 0)
         {
             cout << "[LEXSER FIND PARAMTERS FUNCTION] the token list is empty\n";
         }
         size_t token_list_size = Token_list.size();
         int para_found = 0;
-        
+
         for (size_t i = 0; i <= token_list_size; ++i)
         {
-            if(i >= token_list_size){
+            if (i >= token_list_size)
+            {
                 break;
             }
-            if(i == 0){
-                cout<<"iterntion 0 skiped\n";
+            if (i == 0)
+            {
+                cout << "iterntion 0 skiped\n";
                 continue;
-
             }
             Token *tok = Token_list[i];
             if (tok->Type == TokenType::IDENTFIER && ((Token_list[i - 1]->Type == TokenType::BRACKET || Token_list[i - 1]->Type == TokenType::COMMA) && (Token_list[i + 1]->Type == TokenType::BRACKET || Token_list[i + 1]->Type == TokenType::COMMA)))
@@ -299,8 +300,9 @@ private:
                 ++para_found;
             }
         }
-        if(para_found == 0){
-            cout<<"[lexser find paramter function] no paramters found\n";
+        if (para_found == 0)
+        {
+            cout << "[lexser find paramter function] no paramters found\n";
         }
     }
 
@@ -360,6 +362,10 @@ private:
         for (int i = 0; i < code.length(); ++i)
         {
             char ch = code[i];
+            if (ch == ';')
+            {
+                ++number_of_statments;
+            }
             cout << "[LEXSER LEX FUNCTION MAIN LOOP] ch = " << ch << "\n";
             if (ch == '\n')
             {
@@ -506,7 +512,7 @@ public:
     lexsed_file *toknize(bool debug = false)
     {
         lex();
-        
+
         find_function_identfiers();
         find_varables();
         find_number_of_lines();
@@ -522,10 +528,9 @@ public:
         {
             debug_lexser_output();
         }
-                string null_string = " ";
+        string null_string = " ";
         overwriteFileWithString(null_string, "lexser_output.txt");
         overwriteFileWithString(null_string, "lexser_output_type.txt");
-
 
         for (auto &tok : Token_list)
         {
@@ -538,3 +543,28 @@ public:
         return lx_file;
     }
 };
+
+void debug_lexsed_file(lexsed_file *ls_file)
+{
+    cout << "===============lexsed file debuging=========================\n";
+    cout << "number of lines = " << ls_file->number_of_lines << "\n";
+    cout << "\n";
+    cout << "\n";
+
+    if (ls_file->number_of_tokens == ls_file->token_list.size())
+    {
+        cout << " no error in token list size calculation\n";
+        cout << " token list size = " << ls_file->number_of_tokens << "\n";
+    }
+    else
+    {
+
+        cout << "error found in a tken list size calculation found\n";
+        cout << "list size = " << ls_file->token_list.size() << "\n";
+    }
+    cout << " the number of funtion identfeirs = " << ls_file->function_idenfiers.size() << "\n";
+    cout << " the number of varables are = " << ls_file->varablies.size() << "\n";
+    cout << " the number of statments = " << ls_file->number_of_statments << "\n";
+
+    cout << "===============lexsed file debuging done=========================\n";
+}

@@ -1,10 +1,7 @@
 main:
     x = 2;
-    y = 5;
-    string_1 = "youssef";
-    for(i = 5,i < 9, i = i + 1){
-        string2 = "hii";
-    }
+    y = 6;
     def_f func(x,y){
-        return 0;
+        inside_function_var = 9;
+        return inside_function_var;
     }

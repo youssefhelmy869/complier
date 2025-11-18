@@ -5,3 +5,12 @@ main:
         inside_function_var = 9;
         return inside_function_var;
     }
+    y = 5;
+    h = 7;
+    if(y == 2){
+        for(i in range 10){
+            print("youssef");
+        }
+    }
+    boolean = true;
+    

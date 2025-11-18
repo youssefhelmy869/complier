@@ -1,13 +1,17 @@
 #include <iostream>
 #include "lexser.hpp"
+#include "errorchecker.hpp"
 
 using namespace std;
 
-int main() {
-    
+int main()
+{
+
     lexser lx("code.txt");
-    lexsed_file * file_to_paras = lx.toknize(true);
+    lexsed_file *file_to_paras = lx.toknize(true);
     debug_lexsed_file(file_to_paras);
-    cout<<"[main] exiting\n";
+    check_for_error(file_to_paras);
+    cout << "[main] exiting\n";
     return 0;
+    
 }

@@ -201,6 +201,8 @@ TokenType find_token_type(Token *tok)
     case ::hash("else"):
     case ::hash("while"):
     case ::hash("for"):
+    case ::hash("in"):
+    case ::hash("range"):
         return TokenType::KEYWORD;
     case ::hash("def_f"):
         // the next identifier is a function name
@@ -508,6 +510,19 @@ private:
         return 0;
     }
 
+    template <typename t1>
+    inline bool is_in_list(vector<t1> list, t1 target)
+    {
+        for (auto &obj : list)
+        {
+            if (obj == target)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 public:
     lexsed_file *toknize(bool debug = false)
     {
@@ -517,6 +532,8 @@ public:
         find_varables();
         find_number_of_lines();
         find_paramters();
+        sort_vars();
+        sort_funtion_identfiers();
         lexsed_file *lx_file = new lexsed_file;
         lx_file->token_list = Token_list;
         lx_file->function_idenfiers = function_identfiers;
@@ -541,6 +558,32 @@ public:
         }
         cout << "[LEXSER] return lexed file\n";
         return lx_file;
+    }
+    inline void sort_vars()
+    {
+        vector<Token *> finally_varablies;
+
+        for (auto &tok : varble_identfier)
+        {
+            if (is_in_list<Token *>(finally_varablies, tok) == false)
+            {
+                finally_varablies.push_back(tok);
+            }
+        }
+        varble_identfier = finally_varablies;
+    }
+
+    inline void sort_funtion_identfiers()
+    {
+        vector<Token *> final_list;
+        for (auto &tok : function_identfiers)
+        {
+            if (is_in_list<Token *>(final_list, tok) == false)
+            {
+                final_list.push_back(tok);
+            }
+        }
+        function_identfiers = final_list;
     }
 };
 

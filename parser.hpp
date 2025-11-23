@@ -9,9 +9,23 @@
 #include "lexser.hpp"
 #pragma once
 
-enum class statment_type{
+enum class statment_type
+{
     ARTHMETIC_OPERTION,
     VARABLE_DECLARTION,
-    
+    VARABLE_EDITING,
+    FUNCTION_CALL
+
 };
-struct statment{};
+struct statment
+{
+};
+
+enum class loop_type
+{
+};
+struct loop
+{
+};
+
+struct if {};

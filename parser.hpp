@@ -21,11 +21,24 @@ struct statment
 {
 };
 
-enum class loop_type
+struct while_loop
 {
-};
-struct loop
-{
+    
 };
 
-struct if {};
+struct for_loop
+{
+    
+
+};
+struct for_each_loop
+{
+    
+};
+
+
+struct condition{};
+
+struct main_function{
+
+};

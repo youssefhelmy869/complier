@@ -246,28 +246,46 @@ private:
     vector<Token *> function_identfiers;
     vector<Token *> varble_identfier;
 
-    string code = " ";
+    string code = "";
 
 public:
     lexser(string filename)
     {
 
         code = read_file(filename);
-        if (code == " ")
+        if (code.empty())
         {
-            cerr << "[LEXSER] file not found\n";
+            cerr << "[LEXSER] file not found: " << filename << "\n";
+            // Try a common alternate location (output\code.txt)
+            string alt = string("output\\") + filename;
+            code = read_file(alt);
+            if (!code.empty())
+            {
+                cerr << "[LEXSER] opened fallback file: " << alt << "\n";
+            }
+            else
+            {
+                cerr << "[LEXSER] fallback file also not found: " << alt << "\n";
+            }
         }
+        cout<<"[lexser] opend fallback file sucseesully\n";
         find_number_of_lines();
     }
 
 private:
     inline void find_number_of_lines()
     {
-        for (auto &ch : code)
+        number_of_lines = 0;
+        if (!code.empty())
         {
-            if (ch == '\n')
+            // count newlines, lines = newlines + 1
+            number_of_lines = 1;
+            for (auto &ch : code)
             {
-                ++number_of_lines;
+                if (ch == '\n')
+                {
+                    ++number_of_lines;
+                }
             }
         }
         cout << "[LEXSER FIND NUMBER OF LINES FUNCTION] number of lines are " << number_of_lines << "\n";

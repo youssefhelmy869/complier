@@ -7,38 +7,29 @@
 #include <algorithm>
 #include "file_mangment.hpp"
 #include "lexser.hpp"
+#include "statments.hpp"
 #pragma once
 
-enum class statment_type
+ofstream create_assembly_file(string name = "output\\output.asm") //
 {
-    ARTHMETIC_OPERTION,
-    VARABLE_DECLARTION,
-    VARABLE_EDITING,
-    FUNCTION_CALL
-
-};
-struct statment
+    ofstream asmfile(name);
+    if (!asmfile.is_open())
+    {
+        cerr << "Failed to open file " << name << endl;
+    }
+    return asmfile;
+}
+class parser
 {
-};
 
-struct while_loop
-{
-    
-};
+    vector<statment *> statments;
+    bool file_made = false;
+    ofstream file;
 
-struct for_loop
-{
-    
-
-};
-struct for_each_loop
-{
-    
-};
-
-
-struct condition{};
-
-struct main_function{
-
+public:
+    parser()
+    {
+        cout << "[Paser] created succseefully\n";
+        file = create_assembly_file();
+    }
 };

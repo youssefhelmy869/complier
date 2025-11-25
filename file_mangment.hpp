@@ -11,7 +11,7 @@ inline string read_file(const string &filename)
     ifstream file(filename);
     if (!file.is_open())
     {
-        cerr << "error could not open file" << filename;
+        cerr << "error could not open file " << filename << "\n";
         return "";
     }
     string code((istreambuf_iterator<char>(file)),

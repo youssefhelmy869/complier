@@ -19,17 +19,3 @@ ofstream create_assembly_file(string name = "output\\output.asm") //
     }
     return asmfile;
 }
-class parser
-{
-
-    vector<statment *> statments;
-    bool file_made = false;
-    ofstream file;
-
-public:
-    parser()
-    {
-        cout << "[Paser] created succseefully\n";
-        file = create_assembly_file();
-    }
-};

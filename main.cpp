@@ -8,11 +8,11 @@ using namespace std;
 int main()
 {
 
-    lexser lx("code.txt");
+    lexser lx("output\\code.txt");
     lexsed_file *file_to_paras = lx.toknize(true);
     debug_lexsed_file(file_to_paras);
     check_for_error(file_to_paras);
-    parser ps;
+
     cout << "[main] exiting\n";
     return 0;
     

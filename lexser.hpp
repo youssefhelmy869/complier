@@ -203,6 +203,7 @@ TokenType find_token_type(Token *tok)
     case ::hash("for"):
     case ::hash("in"):
     case ::hash("range"):
+    case ::hash("to"):
         return TokenType::KEYWORD;
     case ::hash("def_f"):
         // the next identifier is a function name
@@ -564,15 +565,15 @@ public:
             debug_lexser_output();
         }
         string null_string = " ";
-        overwriteFileWithString(null_string, "lexser_output.txt");
-        overwriteFileWithString(null_string, "lexser_output_type.txt");
+        overwriteFileWithString(null_string, "output\\lexser_output.txt");
+        overwriteFileWithString(null_string, "output\\lexser_output_type.txt");
 
         for (auto &tok : Token_list)
         {
 
             cout << tok->text << "\n";
-            appendToFileWithNewLine(tok->text, "lexser_output.txt");
-            appendToFileWithNewLine(print_token_type(*tok), "lexser_output_type.txt");
+            appendToFileWithNewLine(tok->text, "output\\lexser_output.txt");
+            appendToFileWithNewLine(print_token_type(*tok), "output\\lexser_output_type.txt");
         }
         cout << "[LEXSER] return lexed file\n";
         return lx_file;

@@ -45,19 +45,20 @@ struct arthetic_opertion
 struct varable_declartion
 {
     int number;
-    string varable_name_to_save_to;
+    Token *var;
     Token *value;
 };
 struct varable_editing
 {
     int number;
-    string varable_name_to_save_to;
+    Token *varable_name_to_save_to;
     Token *value;
 };
 struct funtion_call
 {
     int number;
     Token *funtion_to_call;
+    vector<Token *>parameters;
 };
 struct for_loop
 {
@@ -87,17 +88,17 @@ struct If_condition
 };
 
 using statmentData = variant<condition,
-                            arthetic_opertion,
+                             arthetic_opertion,
                              varable_declartion,
                              varable_editing,
                              funtion_call,
                              for_loop,
                              while_loop,
                              funtion_decleration,
-                              If_condition>;
+                             If_condition>;
 class statment_finder
 {
-    condition *make_condition(int i)
+    void make_condition(int i)
     {
         cout << "[statment finder] make condition funton called\n";
         condition temp;
@@ -111,27 +112,58 @@ class statment_finder
         cout << "     operand 1 = " << temp.operand1->text << "\n";
         cout << "     operand 2 = " << temp.operand2->text << "\n";
         return_data.push_back(temp);
-        return &temp;
     }
 
-    arthetic_opertion *make_arthemtic_opertion(int i){
-        //takes input i the ndex of the + - * /
+    void make_arthemtic_opertion(int i)
+    {
+        // takes input i the ndex of the + - * /
         arthetic_opertion temp;
         temp.number = statment_number;
         ++statment_number;
-        temp.athemtic_opertor = tokens[i] ->text;
-        //temp.operand1
-        return &temp;
+        temp.athemtic_opertor = tokens[i]->text;
+        temp.operand1 = tokens[i + 1];
+        temp.operand2 = tokens[i - 1];
+        temp.result = tokens[i - 3];
+        return_data.push_back(temp);
+    }
+
+    void make_varable_declartion(int i)
+    {
+        varable_declartion temp;
+        temp.number = statment_number;
+        ++statment_number;
+        // takes theput the index of the = token
+        temp.var = tokens[i - 1];
+        temp.value = tokens[i + 1];
+        return_data.push_back(temp);
+    }
+
+    void make_varable_editing(int i)
+    {
+        varable_editing temp;
+        temp.number = statment_number;
+        ++statment_number;
+        // takes index of =
+        temp.varable_name_to_save_to = tokens[i - 1];
+        temp.value = tokens[i + 1];
+        return_data.push_back(temp);
+    }
+    
+    void make_funtion_call(int i){
+        // indes of funtion call identfier
+        
     }
     int statment_number = 1;
 
     vector<Token *> tokens;
     vector<statmentData> return_data;
 
+
 public:
     statment_finder(vector<Token *> para_list)
     {
         tokens = para_list;
+        return_data.reserve(tokens.size());
     }
 };
 

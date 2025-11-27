@@ -58,19 +58,20 @@ struct funtion_call
 {
     int number;
     Token *funtion_to_call;
-    vector<Token *>parameters;
+    vector<Token *> parameters;
 };
 struct for_loop
 {
     int number;
-    string iterantion_varable;
+    Token *iterantion_varable;
     vector<Token *> code_to_loop;
     Token *start_value;
     Token *end_value;
 };
 struct while_loop
 {
-    condition *loop_condition;
+    int number;
+    condition loop_condition;
     vector<Token *> loop_code;
 };
 
@@ -79,10 +80,12 @@ struct funtion_decleration
     int number;
     Token *funtion_name;
     vector<Token *> funtion_code;
+    vector<Token *> paramters;
 };
 struct If_condition
 {
-    condition *If_condition;
+    int number;
+    condition If_condition;
     vector<Token *> if_code;
     vector<Token *> else_code;
 };
@@ -98,7 +101,7 @@ using statmentData = variant<condition,
                              If_condition>;
 class statment_finder
 {
-    void make_condition(int i)
+    condition make_condition(int i)
     {
         cout << "[statment finder] make condition funton called\n";
         condition temp;
@@ -112,6 +115,7 @@ class statment_finder
         cout << "     operand 1 = " << temp.operand1->text << "\n";
         cout << "     operand 2 = " << temp.operand2->text << "\n";
         return_data.push_back(temp);
+        return temp;
     }
 
     void make_arthemtic_opertion(int i)
@@ -148,16 +152,178 @@ class statment_finder
         temp.value = tokens[i + 1];
         return_data.push_back(temp);
     }
-    
-    void make_funtion_call(int i){
+
+    void make_funtion_call(int i)
+    {
         // indes of funtion call identfier
-        
+        funtion_call temp;
+        temp.number = statment_number;
+        ++statment_number;
+        temp.funtion_to_call = tokens[i];
+        int i2 = i + 2;
+        for (int index = 0; tokens[i2 + index]->Type == TokenType::BRACKET; ++index)
+        {
+            int i3 = index + i2;
+            if (tokens[i3]->Type == TokenType::PRAMTER)
+            {
+                temp.parameters.push_back(tokens[i3]);
+            }
+        }
+        cout << "[statment finder] funtion call created name is " << temp.funtion_to_call->text << " and parametsers are \n";
+        for (auto &tok : temp.parameters)
+        {
+            cout << "parametr = " << tok->text << "\n";
+        }
     }
+
+    void make_for_loop(int i)
+    {
+        // the index of the for keyword
+        for_loop temp;
+        temp.number = statment_number;
+        ++statment_number;
+        temp.iterantion_varable = tokens[i + 2];
+        temp.start_value = tokens[i + 4];
+        temp.end_value = tokens[i + 6];
+        int index = 9;
+        int i2;
+        for (auto &t : tokens)
+        {
+            i2 = index + i;
+            Token *tok = tokens[i2];
+            if (tok->Type != TokenType::CURLYBRACKET)
+            {
+                temp.code_to_loop.push_back(tok);
+            }
+            else
+            {
+                break;
+            }
+            ++index;
+        }
+        return_data.push_back(temp);
+    }
+
+    void make_while_loop(int i)
+    {
+        // input the while keyword index
+        while_loop temp;
+        temp.number = statment_number;
+        ++statment_number;
+        int index = i + 1;
+        int comaprsion_index;
+        for (auto &t : tokens)
+        {
+            Token *tok = tokens[index];
+
+            if (tok->Type == TokenType::COMP_OPERATOR_EQUAL)
+            {
+                comaprsion_index = index;
+                break;
+            }
+            ++index;
+        }
+        temp.loop_condition = make_condition(comaprsion_index);
+    }
+
+    void make_funtion_decleration(int i)
+    {
+        funtion_decleration temp;
+        temp.number = statment_number;
+        ++statment_number;
+        // index of def_f
+        temp.funtion_name = tokens[i + 1];
+        // find paarters
+        int index = i + 3;
+        int bracket_index = i;
+        for (auto &t : tokens)
+        {
+            if (tokens[index]->Type == TokenType::PRAMTER)
+            {
+                temp.paramters.push_back(tokens[index]);
+            }
+            else if (tokens[index]->Type == TokenType::BRACKET)
+            {
+                break;
+            }
+
+            ++index;
+        }
+        bracket_index = index - i;
+        bracket_index = bracket_index + 2;
+
+        // find code
+        for (auto &t : tokens)
+        {
+            if (tokens[bracket_index]->Type == TokenType::CURLYBRACKET)
+            {
+                break;
+            }
+            else
+            {
+                temp.funtion_code.push_back(tokens[bracket_index]);
+            }
+            ++bracket_index;
+        }
+
+        return_data.push_back(temp);
+    }
+
+    void make_if__statment(int i)
+    {
+        If_condition temp;
+        temp.number = statment_number;
+        ++statment_number;
+        int comp_index = 0;
+        int index = i;
+        for (auto &t : tokens)
+        {
+            if (tokens[index]->Type == TokenType::COMP_OPERATOR_EQUAL)
+            {
+                comp_index = index;
+                break;
+            }
+            else
+            {
+                ++index;
+            }
+        }
+        temp.If_condition = make_condition(comp_index);
+        // find temp code and else code
+        int curly_braket_index;
+        index = i;
+        while (index < tokens.size())
+        {
+            if (tokens[index]->Type == TokenType::CURLYBRACKET)
+            {
+                curly_braket_index = index;
+                break;
+            }
+            ++index;
+        }
+        index = 0;
+        index = curly_braket_index + 1;
+        while (index < tokens.size())
+        {
+            if (tokens[index]->Type == TokenType::CURLYBRACKET)
+            {
+                break;
+            }
+            else
+            {
+                temp.if_code.push_back(tokens[index]);
+            }
+            ++index;
+        }
+        if(tokens[index + 1] ->Type == TokenType::KEYWORD && tokens[index + 1] -> text == "else"){
+            
+        }
+    }
+
     int statment_number = 1;
 
     vector<Token *> tokens;
     vector<statmentData> return_data;
-
 
 public:
     statment_finder(vector<Token *> para_list)

@@ -101,6 +101,7 @@ using statmentData = variant<condition,
                              If_condition>;
 class statment_finder
 {
+private:
     condition make_condition(int i)
     {
         cout << "[statment finder] make condition funton called\n";
@@ -140,6 +141,7 @@ class statment_finder
         temp.var = tokens[i - 1];
         temp.value = tokens[i + 1];
         return_data.push_back(temp);
+        varable_idenfiers.push_back(tokens[i - 1]);
     }
 
     void make_varable_editing(int i)
@@ -315,21 +317,64 @@ class statment_finder
             }
             ++index;
         }
-        if(tokens[index + 1] ->Type == TokenType::KEYWORD && tokens[index + 1] -> text == "else"){
-            
+        if (tokens[index + 1]->Type == TokenType::KEYWORD && tokens[index + 1]->text == "else")
+        {
+            int else_index = index + 1;
+            int starting_curly_barcket = else_index + 1;
+            index = starting_curly_barcket + 1;
+            while (index < tokens.size())
+            {
+                if (tokens[index]->Type == TokenType::CURLYBRACKET)
+                {
+                    break;
+                }
+                else
+                {
+                    temp.else_code.push_back(tokens[index]);
+                }
+                ++index;
+            }
         }
+        return_data.push_back(temp);
     }
 
     int statment_number = 1;
 
     vector<Token *> tokens;
     vector<statmentData> return_data;
+    int tokens_list_size;
+    vector<Token *> varable_idenfiers;
 
 public:
     statment_finder(vector<Token *> para_list)
     {
         tokens = para_list;
         return_data.reserve(tokens.size());
+        tokens_list_size = tokens.size();
+    }
+    vector<statmentData> find_statment()
+    {
+        for (int i = 0; i >= tokens_list_size; ++i)
+        {
+            if (tokens[i]->Type == TokenType::ARTHMETIC_OPERATOR_DIV || tokens[i]->Type == TokenType::ARTHMETIC_OPERATOR_MINUS || tokens[i]->Type == TokenType::ARTHMETIC_OPERATOR_MUL || tokens[i]->Type == TokenType::ARTHMETIC_OPERATOR_PLUS)
+            {
+                make_arthemtic_opertion(i);
+            }
+            else if (tokens[i]->Type == TokenType::ASSIGMENT_OPERATOR)
+            {
+                bool is_a_varable = (find(varable_idenfiers.begin(), varable_idenfiers.end(), tokens[i]) != varable_idenfiers.end());
+                if (is_a_varable == true)
+                {
+                    make_varable_editing(i);
+                }
+                else
+                {
+                    make_varable_declartion(i);
+                }
+            }
+
+           
+        }
     }
 };
 

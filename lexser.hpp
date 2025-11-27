@@ -269,7 +269,7 @@ public:
                 cerr << "[LEXSER] fallback file also not found: " << alt << "\n";
             }
         }
-        cout<<"[lexser] opend fallback file sucseesully\n";
+        cout << "[lexser] opend fallback file sucseesully\n";
         find_number_of_lines();
     }
 
@@ -541,6 +541,18 @@ private:
         }
         return false;
     }
+    void find_funtion_call()
+    {
+        int i = 0;
+        for (auto &tok : Token_list)
+        {
+            if (tok->Type == TokenType::IDENTFIER && Token_list[i + 1]->Type == TokenType::BRACKET && Token_list[i + 2]->Type == TokenType::PRAMTER)
+            {
+                tok->Type = TokenType::FUNCTION_IDENTFIER;
+            }
+            ++i;
+        }
+    }
 
 public:
     lexsed_file *toknize(bool debug = false)
@@ -551,6 +563,7 @@ public:
         find_varables();
         find_number_of_lines();
         find_paramters();
+        find_funtion_call();
         sort_vars();
         sort_funtion_identfiers();
         lexsed_file *lx_file = new lexsed_file;

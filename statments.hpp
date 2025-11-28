@@ -273,6 +273,7 @@ private:
 
     void make_if__statment(int i)
     {
+        // takes index of keyword if
         If_condition temp;
         temp.number = statment_number;
         ++statment_number;
@@ -354,7 +355,7 @@ public:
     }
     vector<statmentData> find_statment()
     {
-        for (int i = 0; i >= tokens_list_size; ++i)
+        for (int i = 0; i <= tokens_list_size; ++i)
         {
             if (tokens[i]->Type == TokenType::ARTHMETIC_OPERATOR_DIV || tokens[i]->Type == TokenType::ARTHMETIC_OPERATOR_MINUS || tokens[i]->Type == TokenType::ARTHMETIC_OPERATOR_MUL || tokens[i]->Type == TokenType::ARTHMETIC_OPERATOR_PLUS)
             {
@@ -372,9 +373,31 @@ public:
                     make_varable_declartion(i);
                 }
             }
-
-           
+            else if (tokens[i]->Type == TokenType::FUNCTION_IDENTFIER)
+            {
+                if (tokens[i - 1]->Type == TokenType::KEYWORD)
+                {
+                    make_funtion_decleration(i);
+                }
+                else
+                {
+                    make_funtion_call(i);
+                }
+            }
+            else if (tokens[i]->Type == TokenType::KEYWORD && tokens[i]->text == "if")
+            {
+                make_if__statment(i);
+            }
+            else if (tokens[i]->Type == TokenType::KEYWORD && tokens[i]->text == "for")
+            {
+                make_for_loop(i);
+            }
+            else if (tokens[i]->Type == TokenType::KEYWORD && tokens[i]->text == "while")
+            {
+                make_while_loop(i);
+            }
         }
+        return return_data;
     }
 };
 
